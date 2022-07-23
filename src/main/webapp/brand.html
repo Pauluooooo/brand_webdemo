@@ -36,36 +36,68 @@
     <!--顶部操作按钮-->
     <el-row>
         <el-button type="danger" plain>批量删除</el-button>
-        <el-button type="primary" @click="dialogVisible = true" plain>新增</el-button>
+        <el-button type="primary" @click="addDialogVisible = true;" plain>新增</el-button>
     </el-row>
-    <!--添加操作表单-->
+    <!--新增操作表单-->
     <el-dialog
+            :data="tableData"
             title="新增品牌"
-            :visible.sync="dialogVisible"
+            :visible.sync="addDialogVisible"
             width="30%">
-        <!--表单体-->
-        <el-form ref="form" :model="brand" label-width="80px">
-            <el-form-item label="品牌名称">
+        <el-form ref="addBrandForm" :model="brand" label-width="80px">
+            <el-form-item label="品牌名称" prop="brandName">
                 <el-input v-model="brand.brandName"></el-input>
             </el-form-item>
-            <el-form-item label="企业名称">
+            <el-form-item label="企业名称" prop="companyName">
                 <el-input v-model="brand.companyName"></el-input>
             </el-form-item>
-            <el-form-item label="排序">
+            <el-form-item label="排序" prop="ordered">
                 <el-input v-model="brand.ordered"></el-input>
             </el-form-item>
-            <el-form-item label="备注">
+            <el-form-item label="备注" prop="description">
                 <el-input type="textarea" v-model="brand.description"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" prop="status">
                 <el-switch v-model="brand.status"
                            active-value="1"
                            inactive-value="0"
                 ></el-switch>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="addBrand">提交</el-button>
-                <el-button @click="dialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="addBrand();resetForm('addBrandForm')">提交</el-button>
+                <el-button @click="addDialogVisible = false;resetForm('addBrandForm')">取消</el-button>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+  </span>
+    </el-dialog>
+    <!--修改操作表单-->
+    <el-dialog
+            title="修改品牌信息"
+            :visible.sync="updateDialogVisible"
+            width="30%">
+        <el-form ref="form" :model="row" label-width="80px">
+            <el-form-item label="品牌名称">
+                <el-input v-model="row.brandName"></el-input>
+            </el-form-item>
+            <el-form-item label="企业名称">
+                <el-input v-model="row.companyName"></el-input>
+            </el-form-item>
+            <el-form-item label="排序">
+                <el-input v-model="row.ordered"></el-input>
+            </el-form-item>
+            <el-form-item label="备注">
+                <el-input type="textarea" v-model="row.description"></el-input>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-switch v-model="row.status"
+                           active-value="1"
+                           inactive-value="0"
+                ></el-switch>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="updateBrand()">提交</el-button>
+                <el-button @click="updateDialogVisible = false">取消</el-button>
             </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -85,6 +117,7 @@
                     align="center"
                     type="selection">
             </el-table-column>
+            <!--序号-->
             <el-table-column
                     type="index">
             </el-table-column>
@@ -114,13 +147,13 @@
                     <el-button
                             align="center"
                             size="mini"
-                            @click="handleEdit(scope.$index, scope.row)">修改
+                            @click="selectById(scope.row)">修改
                     </el-button>
                     <el-button
                             align="center"
                             size="mini"
                             type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">删除
+                            @click="deleteById(scope.row)">删除
                     </el-button>
                 </template>
             </el-table-column>
@@ -159,26 +192,71 @@
                 var _this = this
                 axios({
                     method: "get",
-                    url: "http://localhost:8080/itheima_webdemo_war/brand/selectAll"
+                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/selectAll"
                 }).then(function (resp) {
                     _this.tableData = resp.data;
                 })
             },
-            // 查询方法
+            // 查询提交方法
             onSubmit() {
-                console.log(this.brand);
+            },
+            // 修改品牌数据方法
+            updateBrand() {
+                var _this = this;
+                axios({
+                    method: "post",
+                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/updateById",
+                    data: _this.row,
+                }).then(function (resp) {
+                    if (resp.data == "success") {
+                        // 关闭窗口
+                        _this.updateDialogVisible = false;
+                        // 刷新数据
+                        _this.selectAll();
+                        // 提示信息
+                        _this.$notify({
+                            title: '成功',
+                            message: '修改成功',
+                            type: 'success'
+                        });
+                    } else {
+                        // 关闭窗口
+                        _this.updateDialogVisible = false;
+                        // 提示信息
+                        _this.$notify.error({
+                            title: '错误',
+                            message: '修改失败'
+                        });
+                    }
+                });
+            },
+
+            // 根据Id查询并回显数据
+            selectById(row) {
+                var _this = this;
+                _this.row = row;
+                axios({
+                    method: "post",
+                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/selectById",
+                    data: _this.row,
+                }).then(function (resp) {
+                    _this.updateDialogVisible = true;
+                    _this.$nextTick(() => {
+                        _this.row = resp.data;
+                    });
+                });
             },
             // 添加品牌方法
             addBrand() {
                 var _this = this
                 axios({
                     method: "post",
-                    url: "http://localhost:8080/itheima_webdemo_war/brand/addAll",
+                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/addAll",
                     data: _this.brand
                 }).then(function (resp) {
                     if (resp.data == "success") {
                         // 关闭窗口
-                        _this.dialogVisible = false;
+                        _this.addDialogVisible = false;
                         // 刷新数据
                         _this.selectAll();
                         // 提示信息
@@ -189,7 +267,7 @@
                         });
                     } else {
                         // 关闭窗口
-                        _this.dialogVisible = false;
+                        _this.addDialogVisible = false;
                         // 提示信息
                         _this.$notify.error({
                             title: '错误',
@@ -198,6 +276,34 @@
                     }
                 })
             },
+            deleteById(row) {
+                var _this = this;
+                _this.row = row
+                this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios({
+                        method: "post",
+                        url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/deleteById",
+                        data: _this.row
+                    }).then(function (resp) {
+                        _this.selectAll();
+                    });
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+
+            },
+
             // Element组件方法区
             tableRowClassName({row, rowIndex}) {
                 if (rowIndex % 3 === 0) {
@@ -209,6 +315,7 @@
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
+                console.log(val);
             },
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);
@@ -216,6 +323,9 @@
             handleCurrentChange(val) {
                 console.log(`当前页: ${val}`);
             },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
         },
 
         data() {
@@ -240,8 +350,18 @@
                 },
                 // 当前页
                 currentPage: 1,
-                // 是否展示对话框标记
-                dialogVisible: false,
+                // 添加表单展示标记
+                addDialogVisible: false,
+                // 修改表单展示标记
+                updateDialogVisible: false,
+                row: {
+                    status: '',
+                    brandName: '',
+                    companyName: '',
+                    id: '',
+                    ordered: '',
+                    description: '',
+                },
             }
         }
     })

@@ -1,13 +1,9 @@
 package com.pauluooooo.mapper;
 
 import com.pauluooooo.pojo.Brand;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
-import java.util.Map;
 
 public interface BrandMapper {
     /*
@@ -21,5 +17,15 @@ public interface BrandMapper {
     @Insert("insert into tb_brand values(null,#{brandName},#{companyName},#{ordered},#{description},#{status})")
     void addAll(Brand brand);
 
+    // 修改品牌功能
+    void updateById(Brand newBrand);
+
+    // 查询单个品牌
+    @Select("select * from tb_brand where id = #{id}")
+    @ResultMap("brandResultMap")
+    Brand selectById(int id);
+
+    @Delete("delete from tb_brand where id = #{id}")
+    void deleteById(int id);
 
 }

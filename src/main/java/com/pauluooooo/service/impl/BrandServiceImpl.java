@@ -31,4 +31,31 @@ public class BrandServiceImpl implements BrandService {
         sqlSession.close();
 
     }
+
+    @Override
+    public void updateById(Brand newBrand) {
+        SqlSession sqlSession = factory.openSession();
+        BrandMapper mapper = sqlSession.getMapper(BrandMapper.class);
+        mapper.updateById(newBrand);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    @Override
+    public Brand selectById(int id) {
+        SqlSession sqlSession = factory.openSession();
+        BrandMapper mapper = sqlSession.getMapper(BrandMapper.class);
+        Brand brand = mapper.selectById(id);
+        sqlSession.close();
+        return brand;
+    }
+
+    @Override
+    public void deleteById(int id) {
+        SqlSession sqlSession = factory.openSession();
+        BrandMapper mapper = sqlSession.getMapper(BrandMapper.class);
+        mapper.deleteById(id);
+        sqlSession.commit();
+        sqlSession.close();
+    }
 }
