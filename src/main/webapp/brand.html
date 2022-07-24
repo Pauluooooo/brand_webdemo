@@ -165,7 +165,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
-                :page-sizes="[5, 10, 15, 20]"
+                :page-sizes="[10, 15, 20]"
                 :page-size="100"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="totalCount">
@@ -190,8 +190,9 @@
             // 查询所有数据
             selectAll() {
                 axios({
-                    method: "get",
-                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/selectByPage?currentPage=" + this.currentPage + "&pageSize=" + this.pageSize,
+                    method: "post",
+                    url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/selectByPageAndCondition?currentPage=" + this.currentPage + "&pageSize=" + this.pageSize,
+                    data: this.brandSearch,
                 }).then(resp => {
                     // 设置表格数据
                     this.tableData = resp.data.rows;
@@ -201,6 +202,7 @@
             },
             // 查询提交方法
             onSubmit() {
+                this.selectAll()
             },
             // 修改品牌数据方法
             updateBrand() {
@@ -372,7 +374,7 @@
             return {
                 tableData: [],
                 // 每页展示条数
-                pageSize: 5,
+                pageSize: 10,
                 // 总记录数
                 totalCount: 100,
                 // 复选框模型

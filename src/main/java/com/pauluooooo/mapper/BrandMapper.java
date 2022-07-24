@@ -41,5 +41,7 @@ public interface BrandMapper {
     @Select("select count(*) from tb_brand")
     int selectTotalCount();
 
+    List<Brand> selectByPageAndCondition(@Param("begin") int begin, @Param("size") int size, @Param("brand") Brand brand);
 
+    int selectTotalCountByCondition(Brand brand);
 }

@@ -94,14 +94,20 @@ public class BrandServlet extends BaseServlet {
         resp.getWriter().write("success");
     }
 
-    public void selectByPage(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void selectByPageAndCondition(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("utf-8");
         // 接收当前页码和每页展示条数
         String _currentPage = req.getParameter("currentPage");
         String _pageSize = req.getParameter("pageSize");
         int currentPage = Integer.parseInt(_currentPage);
         int pageSize = Integer.parseInt(_pageSize);
+        // 读取数据体数据
+        BufferedReader br = req.getReader();
+        String line = br.readLine();
+        // 封装为brand对象
+        Brand brand = JSON.parseObject(line, Brand.class);
         // 调用查询方法，返回pageBean对象
-        PageBean<Brand> pageBean = brandService.selectByPage(currentPage, pageSize);
+        PageBean<Brand> pageBean = brandService.selectByPageAndCondition(currentPage, pageSize,brand);
         String s = JSON.toJSONString(pageBean);
         // 回传成功标志
         resp.setContentType("text/json;charset=utf-8");

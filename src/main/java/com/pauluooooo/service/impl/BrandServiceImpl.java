@@ -75,25 +75,38 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public PageBean<Brand> selectByPage(int currentPage, int pageSize) {
+    public PageBean<Brand> selectByPageAndCondition(int currentPage, int pageSize, Brand brand) {
         // 获取mapper
         SqlSession sqlSession = factory.openSession();
         BrandMapper mapper = sqlSession.getMapper(BrandMapper.class);
         // 计算条目数和当前页
         int begin = (currentPage - 1) * pageSize;
         int size = pageSize;
-        List<Brand> rows = mapper.selectByPage(begin, size);
-        int totalCount = mapper.selectTotalCount();
+
+        // 添加模糊表达式
+        String brandName = brand.getBrandName();
+        if (brandName != null && brandName.length() > 0) {
+            brand.setBrandName("%"+brandName+"%");
+        }
+        String companyName = brand.getCompanyName();
+        if (companyName != null && companyName.length() > 0) {
+            brand.setCompanyName("%"+companyName+"%");
+        }
+
+        List<Brand> rows = mapper.selectByPageAndCondition(begin,size,brand);
+
+        int i = mapper.selectTotalCountByCondition(brand);
         // 封装为PageBean对象
         PageBean<Brand> pageBean = new PageBean<>();
         pageBean.setRows(rows);
-        pageBean.setTotalCount(totalCount);
+        pageBean.setTotalCount(i);
         sqlSession.close();
         return pageBean;
     }
 
     @Override
-    public int selectTotalCount() {
+    public int selectTotalCountByCondition(Brand brand) {
         return 0;
     }
+
 }

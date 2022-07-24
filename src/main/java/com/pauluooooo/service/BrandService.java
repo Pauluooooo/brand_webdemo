@@ -20,7 +20,8 @@ public interface BrandService {
 
     void deleteByIds(int ids[]);
 
-    PageBean<Brand> selectByPage(int currentPage, int pageSize);
+//    PageBean<Brand> selectByPage(int currentPage, int pageSize);
+    PageBean<Brand> selectByPageAndCondition(int currentPage, int pageSize,Brand brand);
 
-    int selectTotalCount();
+    int selectTotalCountByCondition(Brand brand);
 }
