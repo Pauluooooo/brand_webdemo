@@ -91,8 +91,8 @@
             </el-form-item>
             <el-form-item label="状态">
                 <el-switch v-model="row.status"
-                           active-value="1"
-                           inactive-value="0"
+                           :active-value="1"
+                           :inactive-value="0"
                 ></el-switch>
             </el-form-item>
             <el-form-item>
@@ -279,7 +279,7 @@
             deleteById(row) {
                 var _this = this;
                 _this.row = row
-                this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                this.$confirm('此操作将永久删除此条数据, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -287,7 +287,7 @@
                     axios({
                         method: "post",
                         url: "http://localhost:8080/itheima_webdemo_war_exploded/brand/deleteById",
-                        data: _this.row
+                        data: _this.row.id
                     }).then(function (resp) {
                         _this.selectAll();
                     });
