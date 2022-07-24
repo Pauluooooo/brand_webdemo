@@ -3,6 +3,7 @@ package com.pauluooooo.web.servlet;
 import com.alibaba.fastjson.JSON;
 import com.pauluooooo.mapper.BrandMapper;
 import com.pauluooooo.pojo.Brand;
+import com.pauluooooo.pojo.PageBean;
 import com.pauluooooo.service.BrandService;
 import com.pauluooooo.service.impl.BrandServiceImpl;
 
@@ -42,13 +43,10 @@ public class BrandServlet extends BaseServlet {
         // 读取请求体JSON数据
         BufferedReader br = req.getReader();
         String s = br.readLine();
-        // 将传入的JSON数据封装为brand对象
-        Brand brand = JSON.parseObject(s, Brand.class);
-        // 调用方法查询
-        Integer id = brand.getId();
-        Brand brand1 = brandService.selectById(id);
+        int id = Integer.parseInt(s);
+        Brand brand = brandService.selectById(id);
         // 将返回的对象回传
-        String jsonString = JSON.toJSONString(brand1);
+        String jsonString = JSON.toJSONString(brand);
         resp.setContentType("text/json;charset=utf-8");
         resp.getWriter().write(jsonString);
     }
@@ -74,13 +72,39 @@ public class BrandServlet extends BaseServlet {
         // 读取请求体JSON数据
         BufferedReader br = req.getReader();
         String s = br.readLine();
-        // 将传入的JSON数据封装为brand对象
-        Brand brand = JSON.parseObject(s, Brand.class);
         // 执行方法
-        Integer id = brand.getId();
+        int id = Integer.parseInt(s);
         brandService.deleteById(id);
         // 回传成功标志
         resp.setContentType("text/json;charset=utf-8");
         resp.getWriter().write("success");
+    }
+
+    public void deleteByIds(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // 设置字符集
+        req.setCharacterEncoding("utf-8");
+        // 读取请求体JSON数据
+        BufferedReader br = req.getReader();
+        String s = br.readLine();
+        // 执行方法
+        int[] ids = JSON.parseObject(s, int[].class);
+        brandService.deleteByIds(ids);
+        // 回传成功标志
+        resp.setContentType("text/json;charset=utf-8");
+        resp.getWriter().write("success");
+    }
+
+    public void selectByPage(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // 接收当前页码和每页展示条数
+        String _currentPage = req.getParameter("currentPage");
+        String _pageSize = req.getParameter("pageSize");
+        int currentPage = Integer.parseInt(_currentPage);
+        int pageSize = Integer.parseInt(_pageSize);
+        // 调用查询方法，返回pageBean对象
+        PageBean<Brand> pageBean = brandService.selectByPage(currentPage, pageSize);
+        String s = JSON.toJSONString(pageBean);
+        // 回传成功标志
+        resp.setContentType("text/json;charset=utf-8");
+        resp.getWriter().write(s);
     }
 }
